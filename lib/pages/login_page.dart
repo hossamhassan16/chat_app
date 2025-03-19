@@ -18,8 +18,8 @@ class LoginPage extends StatelessWidget {
               height: 150,
             ),
             Image.asset(
-              "assets/images/scholar.png",
-              height: 100,
+              "assets/images/logo-removebg-preview.png",
+              height: 200,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,

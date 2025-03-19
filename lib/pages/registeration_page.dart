@@ -1,10 +1,20 @@
 import 'package:chat_app/constants.dart';
 import 'package:chat_app/widgets/custom_button.dart';
 import 'package:chat_app/widgets/custom_text_field.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class RegisterationPage extends StatelessWidget {
+class RegisterationPage extends StatefulWidget {
   const RegisterationPage({super.key});
+
+  @override
+  State<RegisterationPage> createState() => _RegisterationPageState();
+}
+
+class _RegisterationPageState extends State<RegisterationPage> {
+  String? email;
+
+  String? password;
 
   @override
   Widget build(BuildContext context) {
@@ -18,8 +28,8 @@ class RegisterationPage extends StatelessWidget {
               height: 150,
             ),
             Image.asset(
-              "assets/images/scholar.png",
-              height: 100,
+              "assets/images/logo-removebg-preview.png",
+              height: 200,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -38,7 +48,7 @@ class RegisterationPage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(
-                  "SIgn up",
+                  "Sign up",
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 24,
@@ -50,20 +60,39 @@ class RegisterationPage extends StatelessWidget {
               height: 20,
             ),
             CustomTextField(
+              onChanged: (data) {
+                email = data;
+              },
               hintText: "Email",
             ),
             SizedBox(
               height: 10,
             ),
-            CustomTextField(hintText: "Password"),
+            CustomTextField(
+              hintText: "Password",
+              onChanged: (data) {
+                password = data;
+              },
+            ),
             SizedBox(
               height: 10,
             ),
-            CustomTextField(hintText: "Confirm Password"),
             SizedBox(
               height: 20,
             ),
             CustomButton(
+              onTap: () async {
+                try {
+                  await RegisterUser();
+                } on FirebaseAuthException catch (e) {
+                  if (e.code == 'weak-password') {
+                    ShowSnackBar(context, "Weak Password");
+                  } else if (e.code == 'email-already-in-use') {
+                    ShowSnackBar(context, "E-mail already exists");
+                  }
+                }
+                ShowSnackBar(context, "Success");
+              },
               text: "Sign up",
             ),
             Row(
@@ -94,5 +123,18 @@ class RegisterationPage extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void ShowSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+      ),
+    );
+  }
+
+  Future<void> RegisterUser() async {
+    UserCredential user = await FirebaseAuth.instance
+        .createUserWithEmailAndPassword(email: email!, password: password!);
   }
 }
