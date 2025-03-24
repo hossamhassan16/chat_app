@@ -1,4 +1,5 @@
 import 'package:chat_app/constants.dart';
+import 'package:chat_app/helper/show_snack_bar.dart';
 import 'package:chat_app/widgets/custom_button.dart';
 import 'package:chat_app/widgets/custom_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -65,7 +66,7 @@ class _RegisterationPageState extends State<RegisterationPage> {
                 SizedBox(
                   height: 20,
                 ),
-                CustomTextField(
+                CustomTextFormField(
                   onChanged: (data) {
                     email = data;
                   },
@@ -74,7 +75,7 @@ class _RegisterationPageState extends State<RegisterationPage> {
                 SizedBox(
                   height: 10,
                 ),
-                CustomTextField(
+                CustomTextFormField(
                   hintText: "Password",
                   onChanged: (data) {
                     password = data;
@@ -137,14 +138,6 @@ class _RegisterationPageState extends State<RegisterationPage> {
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void ShowSnackBar(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
       ),
     );
   }
