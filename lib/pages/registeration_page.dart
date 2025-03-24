@@ -3,6 +3,7 @@ import 'package:chat_app/widgets/custom_button.dart';
 import 'package:chat_app/widgets/custom_text_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
 class RegisterationPage extends StatefulWidget {
   const RegisterationPage({super.key});
@@ -16,116 +17,124 @@ class _RegisterationPageState extends State<RegisterationPage> {
 
   String? password;
   GlobalKey<FormState> formKey = GlobalKey();
+  bool isLoading = false;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kPrimaryColor,
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8),
-        child: Form(
-          key: formKey,
-          child: ListView(
-            children: [
-              SizedBox(
-                height: 150,
-              ),
-              Image.asset(
-                "assets/images/logo-removebg-preview.png",
-                height: 200,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Scholar chat",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 32,
-                      fontFamily: 'Pacifico',
-                    ),
-                  ),
-                ],
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  Text(
-                    "Sign up",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              CustomTextField(
-                onChanged: (data) {
-                  email = data;
-                },
-                hintText: "Email",
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              CustomTextField(
-                hintText: "Password",
-                onChanged: (data) {
-                  password = data;
-                },
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              CustomButton(
-                onTap: () async {
-                  if (formKey.currentState!.validate()) {
-                    try {
-                      await RegisterUser();
-                    } on FirebaseAuthException catch (e) {
-                      if (e.code == 'weak-password') {
-                        ShowSnackBar(context, "Weak Password");
-                      } else if (e.code == 'email-already-in-use') {
-                        ShowSnackBar(context, "E-mail already exists");
-                      }
-                    } catch (e) {
-                      ShowSnackBar(context, "There was an error");
-                    }
-                    ShowSnackBar(context, "Success");
-                  }
-                },
-                text: "Sign up",
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "Already have an account? ",
-                    style: TextStyle(
-                      fontSize: 15,
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Login",
+    return ModalProgressHUD(
+      inAsyncCall: isLoading,
+      child: Scaffold(
+        backgroundColor: kPrimaryColor,
+        body: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: Form(
+            key: formKey,
+            child: ListView(
+              children: [
+                SizedBox(
+                  height: 150,
+                ),
+                Image.asset(
+                  "assets/images/logo-removebg-preview.png",
+                  height: 200,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Scholar chat",
                       style: TextStyle(
-                        fontSize: 15,
-                        color: Colors.black,
-                        decoration: TextDecoration.underline,
+                        color: Colors.white,
+                        fontSize: 32,
+                        fontFamily: 'Pacifico',
                       ),
                     ),
-                  )
-                ],
-              ),
-            ],
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Sign up",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                CustomTextField(
+                  onChanged: (data) {
+                    email = data;
+                  },
+                  hintText: "Email",
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                CustomTextField(
+                  hintText: "Password",
+                  onChanged: (data) {
+                    password = data;
+                  },
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                CustomButton(
+                  onTap: () async {
+                    if (formKey.currentState!.validate()) {
+                      isLoading = true;
+                      setState(() {});
+                      try {
+                        await RegisterUser();
+                        ShowSnackBar(context, "Success");
+                      } on FirebaseAuthException catch (e) {
+                        if (e.code == 'weak-password') {
+                          ShowSnackBar(context, "Weak Password");
+                        } else if (e.code == 'email-already-in-use') {
+                          ShowSnackBar(context, "E-mail already exists");
+                        }
+                      } catch (e) {
+                        ShowSnackBar(context, "There was an error");
+                      }
+                      isLoading = false;
+                      setState(() {});
+                    }
+                  },
+                  text: "Sign up",
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "Already have an account? ",
+                      style: TextStyle(
+                        fontSize: 15,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "Login",
+                        style: TextStyle(
+                          fontSize: 15,
+                          color: Colors.black,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
