@@ -1,4 +1,5 @@
 import 'package:chat_app/constants.dart';
+import 'package:chat_app/models/message_model.dart';
 import 'package:chat_app/widgets/chat_bubble.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,6 +22,12 @@ class _ChatPageState extends State<ChatPage> {
     return FutureBuilder<QuerySnapshot>(
       future: messages.get(),
       builder: (context, snapshot) {
+        List<MessageModel> messagesList = [];
+        for (int i = 0; i < snapshot.data!.docs.length; i++) {
+          messagesList.add(
+            MessageModel.fromJson(snapshot.data!.docs[i]),
+          );
+        }
         if (snapshot.hasData) {
           // print(snapshot.data!.docs[2]["message"]);
           return Scaffold(
@@ -47,9 +54,13 @@ class _ChatPageState extends State<ChatPage> {
             body: Column(
               children: [
                 Expanded(
-                  child: ListView.builder(itemBuilder: (context, builder) {
-                    return ChatBubble();
-                  }),
+                  child: ListView.builder(
+                      itemCount: messagesList.length,
+                      itemBuilder: (context, index) {
+                        return ChatBubble(
+                          message: messagesList[index],
+                        );
+                      }),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16),
@@ -60,6 +71,7 @@ class _ChatPageState extends State<ChatPage> {
                         "message": data,
                       });
                       controller.clear();
+                      setState(() {});
                     },
                     decoration: InputDecoration(
                       hintText: "Send Message",
