@@ -17,22 +17,44 @@ class _ChatPageState extends State<ChatPage> {
       FirebaseFirestore.instance.collection('messages');
   TextEditingController controller = TextEditingController();
   final ScrollController _controller = ScrollController();
+  String? email; // ✅ Class-level variable
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    email = ModalRoute.of(context)!.settings.arguments as String?;
+  }
+
+  void sendMessage() {
+    if (controller.text.trim().isNotEmpty && email != null) {
+      messages.add({
+        "message": controller.text.trim(),
+        "createdAt": DateTime.now(),
+        "id": email,
+      });
+      controller.clear();
+
+      // Scroll to bottom
+      _controller.animateTo(
+        0,
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeIn,
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    var email = ModalRoute.of(context)!.settings.arguments;
     return StreamBuilder<QuerySnapshot>(
       stream: messages.orderBy("createdAt", descending: true).snapshots(),
       builder: (context, snapshot) {
         List<MessageModel> messagesList = [];
 
         if (snapshot.hasData) {
-          for (int i = 0; i < snapshot.data!.docs.length; i++) {
-            messagesList.add(
-              MessageModel.fromJson(snapshot.data!.docs[i]),
-            );
+          for (var doc in snapshot.data!.docs) {
+            messagesList.add(MessageModel.fromJson(doc));
           }
-          // print(snapshot.data!.docs[2]["message"]);
+
           return Scaffold(
             appBar: AppBar(
               automaticallyImplyLeading: false,
@@ -40,16 +62,9 @@ class _ChatPageState extends State<ChatPage> {
               title: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Image.asset(
-                    "assets/images/logo-removebg-preview.png",
-                    height: 50,
-                  ),
-                  Text(
-                    "chat",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
+                  Image.asset("assets/images/logo-removebg-preview.png",
+                      height: 50),
+                  const Text("chat", style: TextStyle(color: Colors.white)),
                 ],
               ),
               centerTitle: true,
@@ -58,52 +73,46 @@ class _ChatPageState extends State<ChatPage> {
               children: [
                 Expanded(
                   child: ListView.builder(
-                      reverse: true,
-                      controller: _controller,
-                      itemCount: messagesList.length,
-                      itemBuilder: (context, index) {
-                        return messagesList[index].id == email
-                            ? ChatBubble(
-                                message: messagesList[index],
-                              )
-                            : ChatBubbleForFriend(message: messagesList[index]);
-                      }),
+                    reverse: true,
+                    controller: _controller,
+                    itemCount: messagesList.length,
+                    itemBuilder: (context, index) {
+                      return messagesList[index].id == email
+                          ? ChatBubble(message: messagesList[index])
+                          : ChatBubbleForFriend(message: messagesList[index]);
+                    },
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(16),
-                  child: TextField(
-                    controller: controller,
-                    onSubmitted: (data) {
-                      messages.add({
-                        "message": data,
-                        "createdAt": DateTime.now(),
-                        "id": email,
-                      });
-                      controller.clear();
-                      _controller.animateTo(0,
-                          duration: Duration(milliseconds: 500),
-                          curve: Curves.easeIn);
-                    },
-                    decoration: InputDecoration(
-                      hintText: "Send Message",
-                      suffixIcon: Icon(
-                        Icons.send,
-                        color: kPrimaryColor,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        borderSide: BorderSide(
-                          color: kPrimaryColor,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: controller,
+                          decoration: InputDecoration(
+                            hintText: "Send Message",
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide:
+                                  const BorderSide(color: kPrimaryColor),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: sendMessage, // ✅ Now works correctly
+                        child: const Icon(Icons.send, color: kPrimaryColor),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
           );
         } else {
-          return Center(child: const CircularProgressIndicator());
+          return const Center(child: CircularProgressIndicator());
         }
       },
     );

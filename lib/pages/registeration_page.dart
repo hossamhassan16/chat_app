@@ -2,7 +2,7 @@ import 'package:chat_app/constants.dart';
 import 'package:chat_app/helper/show_snack_bar.dart';
 import 'package:chat_app/pages/chat_page.dart';
 import 'package:chat_app/widgets/custom_button.dart';
-import 'package:chat_app/widgets/custom_text_field.dart';
+import 'package:chat_app/widgets/custom_text_form_field.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
@@ -77,6 +77,7 @@ class _RegisterationPageState extends State<RegisterationPage> {
                   height: 10,
                 ),
                 CustomTextFormField(
+                  obsecureText: true,
                   hintText: "Password",
                   onChanged: (data) {
                     password = data;
