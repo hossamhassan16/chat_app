@@ -16,19 +16,22 @@ class _ChatPageState extends State<ChatPage> {
   CollectionReference messages =
       FirebaseFirestore.instance.collection('messages');
   TextEditingController controller = TextEditingController();
+  final ScrollController _controller = ScrollController();
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<QuerySnapshot>(
-      future: messages.get(),
+    var email = ModalRoute.of(context)!.settings.arguments;
+    return StreamBuilder<QuerySnapshot>(
+      stream: messages.orderBy("createdAt", descending: true).snapshots(),
       builder: (context, snapshot) {
         List<MessageModel> messagesList = [];
-        for (int i = 0; i < snapshot.data!.docs.length; i++) {
-          messagesList.add(
-            MessageModel.fromJson(snapshot.data!.docs[i]),
-          );
-        }
+
         if (snapshot.hasData) {
+          for (int i = 0; i < snapshot.data!.docs.length; i++) {
+            messagesList.add(
+              MessageModel.fromJson(snapshot.data!.docs[i]),
+            );
+          }
           // print(snapshot.data!.docs[2]["message"]);
           return Scaffold(
             appBar: AppBar(
@@ -55,11 +58,15 @@ class _ChatPageState extends State<ChatPage> {
               children: [
                 Expanded(
                   child: ListView.builder(
+                      reverse: true,
+                      controller: _controller,
                       itemCount: messagesList.length,
                       itemBuilder: (context, index) {
-                        return ChatBubble(
-                          message: messagesList[index],
-                        );
+                        return messagesList[index].id == email
+                            ? ChatBubble(
+                                message: messagesList[index],
+                              )
+                            : ChatBubbleForFriend(message: messagesList[index]);
                       }),
                 ),
                 Padding(
@@ -69,9 +76,13 @@ class _ChatPageState extends State<ChatPage> {
                     onSubmitted: (data) {
                       messages.add({
                         "message": data,
+                        "createdAt": DateTime.now(),
+                        "id": email,
                       });
                       controller.clear();
-                      setState(() {});
+                      _controller.animateTo(0,
+                          duration: Duration(milliseconds: 500),
+                          curve: Curves.easeIn);
                     },
                     decoration: InputDecoration(
                       hintText: "Send Message",
@@ -92,7 +103,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           );
         } else {
-          return Text("Loading...");
+          return Center(child: const CircularProgressIndicator());
         }
       },
     );

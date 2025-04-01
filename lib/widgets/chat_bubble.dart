@@ -31,3 +31,33 @@ class ChatBubble extends StatelessWidget {
     );
   }
 }
+
+class ChatBubbleForFriend extends StatelessWidget {
+  const ChatBubbleForFriend({
+    super.key,
+    required this.message,
+  });
+  final MessageModel message;
+  @override
+  Widget build(BuildContext context) {
+    return Align(
+      alignment: Alignment.centerRight,
+      child: Container(
+        padding: EdgeInsets.all(16),
+        margin: EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Color(0xff006D84),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(16),
+            topRight: Radius.circular(16),
+            bottomLeft: Radius.circular(16),
+          ),
+        ),
+        child: Text(
+          message.message,
+          style: TextStyle(color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
