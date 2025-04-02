@@ -102,7 +102,7 @@ class _ChatPageState extends State<ChatPage> {
                       ),
                       const SizedBox(width: 8),
                       GestureDetector(
-                        onTap: sendMessage, // ✅ Now works correctly
+                        onTap: sendMessage,
                         child: const Icon(Icons.send, color: kPrimaryColor),
                       ),
                     ],
