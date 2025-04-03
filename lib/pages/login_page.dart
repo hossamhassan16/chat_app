@@ -8,7 +8,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
+  LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   String? email;
 
   String? password;
@@ -24,7 +31,11 @@ class LoginPage extends StatelessWidget {
         if (state is LoginLoading) {
           isLoading = true;
         } else if (state is LoginSuccess) {
-          Navigator.pushNamed(context, ChatPage.id);
+          Navigator.pushNamed(
+            context,
+            ChatPage.id,
+            arguments: email,
+          );
           isLoading = false;
         } else if (state is LoginFailure) {
           ShowSnackBar(context, state.errMessage);

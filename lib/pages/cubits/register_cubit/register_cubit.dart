@@ -11,6 +11,7 @@ class RegisterCubit extends Cubit<RegisterState> {
       {required String email, required String password}) async {
     emit(RegisterLoading());
     try {
+      // ignore: unused_local_variable
       UserCredential user = await FirebaseAuth.instance
           .createUserWithEmailAndPassword(email: email, password: password);
       emit(RegisterSuccess());

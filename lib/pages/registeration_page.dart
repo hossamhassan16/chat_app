@@ -8,12 +8,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
 
-class RegisterationPage extends StatelessWidget {
+class RegisterationPage extends StatefulWidget {
+  RegisterationPage({super.key});
+
+  @override
+  State<RegisterationPage> createState() => _RegisterationPageState();
+}
+
+class _RegisterationPageState extends State<RegisterationPage> {
   String? email;
 
   String? password;
+
   GlobalKey<FormState> formKey = GlobalKey();
+
   bool isLoading = false;
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<RegisterCubit, RegisterState>(
@@ -21,7 +31,11 @@ class RegisterationPage extends StatelessWidget {
         if (state is RegisterLoading) {
           isLoading = true;
         } else if (state is RegisterSuccess) {
-          Navigator.pushNamed(context, ChatPage.id);
+          Navigator.pushNamed(
+            context,
+            ChatPage.id,
+            arguments: email,
+          );
           isLoading = false;
         } else if (state is RegisterFailure) {
           ShowSnackBar(context, state.errMessage);
